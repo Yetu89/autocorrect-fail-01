@@ -123,10 +123,14 @@ function validate(text: string): void {
   }
   // Control characters are invisible in most editors but visible to the
   // scorer — tabs, NUL bytes and ANSI escapes are all rejected here
-  // (U+0000–U+001F and U+007F).
+  // (U+0000–U+001F and U+007F). The message names the first offending
+  // code point so the failure is diagnosable, not just a bare refusal.
   // eslint-disable-next-line no-control-regex
-  if (/[\u0000-\u001F\u007F]/.test(text)) {
-    throw new Error("entry contains control characters");
+  const bad = text.match(/[\u0000-\u001F\u007F]/);
+  if (bad) {
+    throw new Error(
+      `entry contains control character U+${bad[0].charCodeAt(0).toString(16).padStart(4, "0").toUpperCase()}`,
+    );
   }
 }
 
